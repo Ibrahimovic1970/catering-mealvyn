@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Paket extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'pakets';
 
@@ -20,8 +21,11 @@ class Paket extends Model
         'deskripsi',
         'foto1',
         'foto2',
-        'foto3'
+        'foto3',
+        'is_active'
     ];
+
+    protected $dates = ['deleted_at'];
 
     public function detailPemesanans()
     {

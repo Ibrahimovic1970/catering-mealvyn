@@ -1,11 +1,12 @@
 @extends('layouts.app')
+
 @section('title', 'Menu')
 
 @section('content')
 <section style="padding: 150px 0 80px; background: linear-gradient(135deg, #0e3a20 0%, #1a5632 100%); text-align: center;">
     <div class="container">
-        <h1 style="font-size: 3rem; color: var(--white); margin-bottom: 16px;">Menu Kami</h1>
-        <p style="color: rgba(255,255,255,0.7); font-size: 1.1rem;">Pilih paket catering terbaik untuk acara Anda</p>
+        <h1 style="font-size: 3rem; color: var(--white); margin-bottom: 16px; font-family: 'Playfair Display', serif;">Menu Kami</h1>
+        <p style="color: rgba(255,255,255,0.7); font-size: 1.1rem; max-width: 600px; margin: 0 auto;">Pilih paket catering terbaik untuk acara Anda</p>
     </div>
 </section>
 
@@ -15,7 +16,7 @@
             <button class="menu-tab active" data-filter="all" style="padding: 10px 20px; border: none; border-radius: 50px; background: var(--white); cursor: pointer; font-weight: 500;">🎯 Semua</button>
             <button class="menu-tab" data-filter="Pernikahan" style="padding: 10px 20px; border: none; border-radius: 50px; background: var(--white); cursor: pointer; font-weight: 500;">💒 Pernikahan</button>
             <button class="menu-tab" data-filter="Selamatan" style="padding: 10px 20px; border: none; border-radius: 50px; background: var(--white); cursor: pointer; font-weight: 500;">🤲 Selamatan</button>
-            <button class="menu-tab" data-filter="Ulang Tahun" style="padding: 10px 20px; border: none; border-radius: 50px; background: var(--white); cursor: pointer; font-weight: 500;"> Ulang Tahun</button>
+            <button class="menu-tab" data-filter="Ulang Tahun" style="padding: 10px 20px; border: none; border-radius: 50px; background: var(--white); cursor: pointer; font-weight: 500;">🎂 Ulang Tahun</button>
             <button class="menu-tab" data-filter="Studi Tour" style="padding: 10px 20px; border: none; border-radius: 50px; background: var(--white); cursor: pointer; font-weight: 500;">🎒 Studi Tour</button>
             <button class="menu-tab" data-filter="Rapat" style="padding: 10px 20px; border: none; border-radius: 50px; background: var(--white); cursor: pointer; font-weight: 500;">💼 Rapat</button>
         </div>
@@ -23,8 +24,12 @@
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px;" id="menuGrid">
             @foreach($pakets as $paket)
             <div class="menu-card" data-category="{{ $paket->kategori }}" style="background: var(--white); border-radius: 20px; overflow: hidden; box-shadow: var(--shadow); transition: transform 0.3s;">
-                <div style="height: 180px; background: linear-gradient(135deg, #f0e8d8, #e6dcc8); display: flex; align-items: center; justify-content: center; font-size: 3rem;">
-                    @if($paket->foto1) <img src="{{ asset('storage/' . $paket->foto1) }}" style="width:100%; height:100%; object-fit:cover;"> @else 🍽️ @endif
+                <div style="height: 200px; background: linear-gradient(135deg, #f0e8d8, #e6dcc8); display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                    @if($paket->foto1)
+                    <img src="{{ asset('storage/' . $paket->foto1) }}" alt="{{ $paket->nama_paket }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    @else
+                    <span style="font-size: 4rem;">🍽️</span>
+                    @endif
                 </div>
                 <div style="padding: 24px;">
                     <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #b8903a; font-weight: 600; background: rgba(212,168,83,0.1); padding: 4px 10px; border-radius: 20px;">{{ $paket->kategori }}</span>
@@ -33,10 +38,11 @@
                     <div style="font-size: 0.85rem; color: #6b6b6b; margin-bottom: 15px;">👥 {{ $paket->jumlah_pax }} Pax | 📦 {{ $paket->jenis }}</div>
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div style="font-size: 1.2rem; font-weight: 700; color: #1a5632;">Rp {{ number_format($paket->harga_paket, 0, ',', '.') }} <small style="font-size: 0.8rem; color: #a0a0a0; font-weight: 400;">/pax</small></div>
-                        <form action="{{ route('cart.add') }}" method="POST">
+
+                        <form action="{{ route('cart.add') }}" method="POST" style="display: inline;">
                             @csrf
                             <input type="hidden" name="id" value="{{ $paket->id }}">
-                            <button type="submit" style="width: 40px; height: 40px; border-radius: 50%; background: #1a5632; color: var(--white); border: none; cursor: pointer; font-size: 1.2rem;">+</button>
+                            <button type="submit" style="width: 40px; height: 40px; border-radius: 50%; background: #1a5632; color: var(--white); border: none; cursor: pointer; font-size: 1.2rem; transition: all 0.3s;" onmouseover="this.style.background='#0e3a20'; this.style.transform='scale(1.1)'" onmouseout="this.style.background='#1a5632'; this.style.transform='scale(1)'">+</button>
                         </form>
                     </div>
                 </div>
