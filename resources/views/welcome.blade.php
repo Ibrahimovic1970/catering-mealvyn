@@ -2957,7 +2957,7 @@
             </div>
             <div class="footer-bottom">
                 <p>&copy; {{ date('Y') }} Mealvyn. All rights reserved.</p>
-                <p>Dibuat dengan ❤️ di Indonesia</p>
+                <p>Dibuat Ahmad Ibrahimovic</p>
             </div>
         </div>
     </footer>
