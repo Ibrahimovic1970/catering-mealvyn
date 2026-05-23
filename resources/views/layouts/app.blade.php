@@ -7,7 +7,9 @@
     <title>@yield('title', 'Mealvyn') - Premium Catering Online</title>
     <meta name="description" content="Mealvyn menyajikan catering premium dengan cita rasa terbaik.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
 
     <style>
         :root {
@@ -129,6 +131,22 @@
             color: var(--secondary);
         }
 
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--secondary);
+            transition: all 0.3s;
+        }
+
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            width: 100%;
+        }
+
         .nav-cta {
             background: var(--secondary);
             color: var(--dark) !important;
@@ -136,23 +154,16 @@
             border-radius: 50px;
             font-weight: 600;
             font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .nav-cta::after {
+            display: none !important;
         }
 
         .nav-cta:hover {
             background: var(--secondary-light);
             transform: translateY(-2px);
-        }
-
-        .cart-badge {
-            background: var(--primary);
-            color: var(--white);
-            font-size: 0.7rem;
-            padding: 2px 8px;
-            border-radius: 50%;
-            margin-left: 4px;
         }
 
         .hamburger {
@@ -174,7 +185,18 @@
             background: var(--dark);
         }
 
-        /* Mobile Nav */
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(6px, -6px);
+        }
+
         .mobile-nav {
             position: fixed;
             top: 0;
@@ -273,86 +295,12 @@
             padding-left: 6px;
         }
 
-        .footer-newsletter p {
-            font-size: 0.88rem;
-            margin-bottom: 16px;
-        }
-
-        .newsletter-form {
-            display: flex;
-            gap: 8px;
-        }
-
-        .newsletter-form input {
-            flex: 1;
-            padding: 12px 18px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 50px;
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--white);
-            font-size: 0.88rem;
-        }
-
-        .newsletter-form input:focus {
-            outline: none;
-            border-color: var(--secondary);
-        }
-
-        .newsletter-form input::placeholder {
-            color: rgba(255, 255, 255, 0.3);
-        }
-
-        .newsletter-form button {
-            padding: 12px 24px;
-            background: var(--secondary);
-            color: var(--dark);
-            border: none;
-            border-radius: 50px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .newsletter-form button:hover {
-            background: var(--secondary-light);
-        }
-
         .footer-bottom {
             padding: 24px 0;
             display: flex;
             align-items: center;
             justify-content: space-between;
             font-size: 0.82rem;
-        }
-
-        .scroll-top {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 50px;
-            height: 50px;
-            background: var(--primary);
-            color: var(--white);
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            z-index: 999;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s;
-        }
-
-        .scroll-top.visible {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .scroll-top:hover {
-            background: var(--secondary);
-            color: var(--dark);
         }
 
         @media (max-width: 1024px) {
@@ -386,42 +334,92 @@
             <div class="nav-links">
                 <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Beranda</a>
                 <a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'active' : '' }}">Tentang</a>
-                <a href="{{ route('services') }}" class="{{ request()->routeIs('services') ? 'active' : '' }}">Layanan</a>
+                <a href="{{ route('services') }}"
+                    class="{{ request()->routeIs('services') ? 'active' : '' }}">Layanan</a>
                 <a href="{{ route('menu') }}" class="{{ request()->routeIs('menu') ? 'active' : '' }}">Menu</a>
                 <a href="{{ route('pricing') }}" class="{{ request()->routeIs('pricing') ? 'active' : '' }}">Harga</a>
 
                 @guest
-                <a href="{{ route('login') }}" style="background: var(--secondary); color: var(--dark) !important; padding: 10px 24px; border-radius: 50px; font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: all 0.3s;">🔐 Masuk</a>
+                    <a href="{{ route('login') }}"
+                        style="background: var(--secondary); color: var(--dark) !important; padding: 10px 24px; border-radius: 50px; font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: all 0.3s;">🔐
+                        Masuk</a>
                 @else
-                <a href="{{ route('cart') }}" style="background: var(--secondary); color: var(--dark) !important; padding: 10px 24px; border-radius: 50px; font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: all 0.3s; display: inline-flex; align-items: center; gap: 6px;">
-                    🛒 Keranjang
-                    @if(session('cart'))
-                    <span style="background: var(--primary); color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 50%;">{{ count(session('cart')) }}</span>
-                    @endif
-                </a>
-
-                <!-- User Dropdown -->
-                <div style="position: relative;">
-                    <button onclick="toggleUserDropdown()" style="background: none; border: 2px solid var(--secondary); color: var(--secondary); padding: 10px 20px; border-radius: 50px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px;" id="userDropdownBtn">
-                        👤 {{ explode(' ', auth()->user()->name)[0] }}
-                        <span style="font-size: 0.7rem;">▼</span>
-                    </button>
-                    <div id="userDropdown" style="display: none; position: absolute; right: 0; top: 120%; background: white; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.15); min-width: 220px; z-index: 1000; margin-top: 8px; overflow: hidden;">
-                        <div style="padding: 16px; border-bottom: 1px solid #eee;">
-                            <div style="font-weight: 600; color: var(--dark);">{{ auth()->user()->name }}</div>
-                            <div style="font-size: 0.85rem; color: var(--gray); text-transform: capitalize;">{{ ucfirst(auth()->user()->level) }}</div>
-                        </div>
-                        @if(auth()->user()->isAdmin() || auth()->user()->isCEO())
-                        <a href="{{ route('admin.dashboard') }}" style="display: block; padding: 12px 16px; color: var(--dark); text-decoration: none; font-size: 0.9rem; transition: background 0.2s;" onmouseover="this.style.background='#f0fdf4'" onmouseout="this.style.background='white'">⚙️ Dashboard Admin</a>
+                    <a href="{{ route('cart') }}"
+                        style="background: var(--secondary); color: var(--dark) !important; padding: 10px 24px; border-radius: 50px; font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: all 0.3s; display: inline-flex; align-items: center; gap: 6px;">
+                        🛒 Keranjang
+                        @if(session('cart'))
+                            <span
+                                style="background: var(--primary); color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 50%;">{{ count(session('cart')) }}</span>
                         @endif
-                        <!-- PERUBAHAN: Link Beranda menggantikan Pesanan Saya -->
-                        <a href="{{ route('home') }}" style="display: block; padding: 12px 16px; color: var(--dark); text-decoration: none; font-size: 0.9rem; transition: background 0.2s;" onmouseover="this.style.background='#f0fdf4'" onmouseout="this.style.background='white'">🏠 Beranda</a>
-                        <form action="{{ route('logout') }}" method="POST">
-                            @csrf
-                            <button type="submit" style="width: 100%; padding: 12px 16px; background: #fee2e2; color: #dc2626; border: none; cursor: pointer; text-align: left; font-size: 0.9rem; border-top: 1px solid #eee; transition: background 0.2s;" onmouseover="this.style.background='#fecaca'" onmouseout="this.style.background='#fee2e2'">🚪 Logout</button>
-                        </form>
+                    </a>
+
+                    <!-- User Dropdown -->
+                    <div style="position: relative;">
+                        <button onclick="toggleUserDropdown()"
+                            style="background: none; border: 2px solid var(--secondary); color: var(--secondary); padding: 10px 20px; border-radius: 50px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: all 0.3s;"
+                            id="userDropdownBtn">
+                            <span style="font-size: 1.2rem;">👤</span>
+                            <span>{{ explode(' ', auth()->user()->name)[0] }}</span>
+                            <span style="font-size: 0.7rem;">▼</span>
+                        </button>
+
+                        <!-- Dropdown Menu -->
+                        <div id="userDropdown"
+                            style="display: none; position: absolute; right: 0; top: 120%; background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); min-width: 240px; z-index: 1000; margin-top: 8px; overflow: hidden; border: 1px solid rgba(0,0,0,0.05);">
+
+                            <!-- User Info Header -->
+                            <div
+                                style="padding: 20px; border-bottom: 1px solid #f0f0f0; background: linear-gradient(135deg, #f9f9f9 0%, #ffffff 100%);">
+                                <div style="font-weight: 700; color: #1a1a1a; font-size: 1rem; margin-bottom: 4px;">
+                                    {{ auth()->user()->name }}</div>
+                                <div style="font-size: 0.85rem; color: #6b6b6b; text-transform: capitalize;">
+                                    {{ ucfirst(auth()->user()->level) }}</div>
+                            </div>
+
+                            <!-- Menu Items -->
+                            @php $userLevel = strtolower(trim(auth()->user()->level ?? '')); @endphp
+
+                            @if($userLevel === 'admin' || $userLevel === 'ceo')
+                                <a href="{{ route('admin.dashboard') }}"
+                                    style="display: flex; align-items: center; gap: 12px; padding: 14px 20px; color: #1a1a1a; text-decoration: none; font-size: 0.95rem; transition: all 0.2s; font-weight: 500;"
+                                    onmouseover="this.style.background='#f0fdf4'; this.style.paddingLeft='24px'"
+                                    onmouseout="this.style.background='white'; this.style.paddingLeft='20px'">
+                                    <span style="font-size: 1.2rem;">⚙️</span>
+                                    <span>Dashboard Admin</span>
+                                </a>
+                            @endif
+
+                            @if($userLevel === 'pelanggan' || $userLevel === 'customer')
+                                <a href="{{ route('pesanan.saya') }}"
+                                    style="display: flex; align-items: center; gap: 12px; padding: 14px 20px; color: #1a1a1a; text-decoration: none; font-size: 0.95rem; transition: all 0.2s; font-weight: 500;"
+                                    onmouseover="this.style.background='#f0fdf4'; this.style.paddingLeft='24px'"
+                                    onmouseout="this.style.background='white'; this.style.paddingLeft='20px'">
+                                    <span style="font-size: 1.2rem;">📦</span>
+                                    <span>Paket Saya</span>
+                                </a>
+                            @endif
+
+                            <a href="{{ route('home') }}"
+                                style="display: flex; align-items: center; gap: 12px; padding: 14px 20px; color: #1a1a1a; text-decoration: none; font-size: 0.95rem; transition: all 0.2s; font-weight: 500;"
+                                onmouseover="this.style.background='#f0fdf4'; this.style.paddingLeft='24px'"
+                                onmouseout="this.style.background='white'; this.style.paddingLeft='20px'">
+                                <span style="font-size: 1.2rem;">🏠</span>
+                                <span>Beranda</span>
+                            </a>
+
+                            <!-- Logout -->
+                            <form action="{{ route('logout') }}" method="POST">
+                                @csrf
+                                <button type="submit"
+                                    style="width: 100%; padding: 14px 20px; background: linear-gradient(135deg, #fee2e2, #fecaca); color: #dc2626; border: none; cursor: pointer; text-align: left; font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; gap: 12px; transition: all 0.2s; border-top: 1px solid #f0f0f0;"
+                                    onmouseover="this.style.background='linear-gradient(135deg, #fecaca, #fca5a5)'; this.style.paddingLeft='24px'"
+                                    onmouseout="this.style.background='linear-gradient(135deg, #fee2e2, #fecaca)'; this.style.paddingLeft='20px'">
+                                    <span style="font-size: 1.2rem;">🚪</span>
+                                    <span>Logout</span>
+                                </button>
+                            </form>
+                        </div>
                     </div>
-                </div>
                 @endguest
             </div>
             <div class="hamburger" id="hamburger">
@@ -430,7 +428,7 @@
         </div>
     </nav>
 
-    <!-- Mobile Nav (HANYA SATU - Tidak Duplikat) -->
+    <!-- Mobile Nav -->
     <div class="mobile-nav" id="mobileNav">
         <a href="{{ route('home') }}" onclick="closeMobileNav()">Beranda</a>
         <a href="{{ route('about') }}" onclick="closeMobileNav()">Tentang</a>
@@ -439,19 +437,23 @@
         <a href="{{ route('pricing') }}" onclick="closeMobileNav()">Harga</a>
 
         @guest
-        <a href="{{ route('login') }}" onclick="closeMobileNav()" style="color: var(--secondary);">🔐 Masuk</a>
-        <a href="{{ route('register') }}" onclick="closeMobileNav()">Daftar Akun</a>
+            <a href="{{ route('login') }}" onclick="closeMobileNav()" style="color: var(--secondary);">🔐 Masuk</a>
+            <a href="{{ route('register') }}" onclick="closeMobileNav()">Daftar Akun</a>
         @else
-        <a href="{{ route('cart') }}" onclick="closeMobileNav()">🛒 Keranjang</a>
-        @if(auth()->user()->isAdmin() || auth()->user()->isCEO())
-        <a href="{{ route('admin.dashboard') }}" onclick="closeMobileNav()" style="color: var(--secondary);">⚙️ Dashboard Admin</a>
-        @endif
-        <!-- PERUBAHAN: Link Beranda menggantikan Pesanan Saya -->
-        <a href="{{ route('home') }}" onclick="closeMobileNav()">🏠 Beranda</a>
-        <form action="{{ route('logout') }}" method="POST" style="display: inline; width: 100%;">
-            @csrf
-            <button type="submit" style="width: 100%; background: none; border: none; color: #dc2626; font-family: 'Playfair Display', serif; font-size: 2rem; cursor: pointer; text-align: center;">Logout</button>
-        </form>
+            <a href="{{ route('cart') }}" onclick="closeMobileNav()">🛒 Keranjang</a>
+            @php $mLevel = strtolower(trim(auth()->user()->level ?? '')); @endphp
+            @if($mLevel === 'pelanggan' || $mLevel === 'customer')
+                <a href="{{ route('pesanan.saya') }}" onclick="closeMobileNav()">📦 Paket Saya</a>
+            @endif
+            @if($mLevel === 'admin' || $mLevel === 'ceo')
+                <a href="{{ route('admin.dashboard') }}" onclick="closeMobileNav()">⚙️ Dashboard Admin</a>
+            @endif
+            <a href="{{ route('home') }}" onclick="closeMobileNav()">🏠 Beranda</a>
+            <form action="{{ route('logout') }}" method="POST" style="display: inline; width: 100%;">
+                @csrf
+                <button type="submit"
+                    style="width: 100%; background: none; border: none; color: #dc2626; font-family: 'Playfair Display', serif; font-size: 2rem; cursor: pointer; text-align: center;">Logout</button>
+            </form>
         @endguest
     </div>
 
@@ -466,7 +468,8 @@
             <div class="footer-grid">
                 <div class="footer-brand">
                     <a href="{{ route('home') }}" class="nav-logo">Meal<span>vyn</span></a>
-                    <p>Mealvyn adalah layanan catering premium yang menghadirkan cita rasa autentik dengan sentuhan modern untuk setiap momen spesial Anda.</p>
+                    <p>Mealvyn adalah layanan catering premium yang menghadirkan cita rasa autentik dengan sentuhan
+                        modern untuk setiap momen spesial Anda.</p>
                     <div class="footer-socials">
                         <a href="#" class="footer-social">📘</a>
                         <a href="#" class="footer-social">📸</a>
@@ -497,7 +500,8 @@
                 <div class="footer-newsletter">
                     <h4>Newsletter</h4>
                     <p>Dapatkan promo eksklusif dan menu terbaru langsung di inbox Anda.</p>
-                    <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Terima kasih telah berlangganan!');">
+                    <form class="newsletter-form"
+                        onsubmit="event.preventDefault(); alert('Terima kasih telah berlangganan!');">
                         <input type="email" placeholder="Email Anda..." required>
                         <button type="submit">Kirim</button>
                     </form>
@@ -510,17 +514,15 @@
         </div>
     </footer>
 
-    <!-- Scroll to Top -->
-    <button class="scroll-top" id="scrollTop">↑</button>
-
     <script>
         // Toggle User Dropdown
         function toggleUserDropdown() {
             const dropdown = document.getElementById('userDropdown');
             dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
         }
+
         // Close dropdown when clicking outside
-        document.addEventListener('click', function(event) {
+        document.addEventListener('click', function (event) {
             const dropdown = document.getElementById('userDropdown');
             const button = document.getElementById('userDropdownBtn');
             if (!button.contains(event.target) && !dropdown.contains(event.target)) {
@@ -530,7 +532,7 @@
 
         // Navbar Scroll
         const navbar = document.getElementById('navbar');
-        window.addEventListener('scroll', function() {
+        window.addEventListener('scroll', function () {
             navbar.classList.toggle('scrolled', window.scrollY > 80);
         });
 
@@ -539,7 +541,7 @@
         const mobileNav = document.getElementById('mobileNav');
 
         if (hamburger && mobileNav) {
-            hamburger.addEventListener('click', function() {
+            hamburger.addEventListener('click', function () {
                 hamburger.classList.toggle('active');
                 mobileNav.classList.toggle('active');
                 document.body.style.overflow = mobileNav.classList.contains('active') ? 'hidden' : '';
@@ -553,29 +555,19 @@
         }
 
         // Scroll to Top
-        const scrollTopBtn = document.getElementById('scrollTop');
-        window.addEventListener('scroll', function() {
-            scrollTopBtn.classList.toggle('visible', window.scrollY > 500);
-        });
-        scrollTopBtn.addEventListener('click', function() {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
+        const scrollTopBtn = document.createElement('button');
+        scrollTopBtn.innerHTML = '↑';
+        scrollTopBtn.className = 'scroll-top';
+        scrollTopBtn.style.cssText = 'position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px; background: var(--primary); color: white; border: none; border-radius: 50%; cursor: pointer; font-size: 1.2rem; z-index: 999; opacity: 0; visibility: hidden; transition: all 0.3s;';
+        document.body.appendChild(scrollTopBtn);
+
+        window.addEventListener('scroll', function () {
+            scrollTopBtn.style.opacity = window.scrollY > 500 ? '1' : '0';
+            scrollTopBtn.style.visibility = window.scrollY > 500 ? 'visible' : 'hidden';
         });
 
-        // Smooth Scroll
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    window.scrollTo({
-                        top: target.offsetTop - 80,
-                        behavior: 'smooth'
-                    });
-                }
-            });
+        scrollTopBtn.addEventListener('click', function () {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     </script>
     @stack('scripts')

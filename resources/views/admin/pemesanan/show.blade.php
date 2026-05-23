@@ -1,302 +1,203 @@
-@extends('admin.layouts.admin')
+@extends('layouts.app')
 
-@section('title', 'Detail Pesanan - ' . $pemesanan->no_resi)
-@section('page-title', 'Detail Pesanan')
+@section('title', 'Detail Pesanan')
 
 @section('content')
-<div style="margin-bottom: 24px;">
-    <a href="{{ route('admin.pemesanan.index') }}" style="display: inline-flex; align-items: center; gap: 8px; color: var(--primary); text-decoration: none; font-weight: 500; margin-bottom: 20px;">
-        <span>←</span> Kembali ke Daftar Pesanan
-    </a>
-</div>
-
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
-
-    <!-- KOLOM KIRI: INFO PESANAN & CUSTOMER -->
-    <div>
-        <!-- Status Badge & No Resi -->
-        <div class="card" style="margin-bottom: 24px;">
-            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <h3 style="margin-bottom: 4px;">No. Resi: {{ $pemesanan->no_resi }}</h3>
-                    <p style="color: var(--gray); font-size: 0.9rem;">{{ \Carbon\Carbon::parse($pemesanan->tgl_pesan)->format('d F Y, H:i') }}</p>
-                </div>
-                @php
-                $badgeClass = 'badge-primary';
-                $statusIcon = '';
-                switch($pemesanan->status_pesan) {
-                case 'Menunggu Konfirmasi': $badgeClass = 'badge-warning'; $statusIcon = '⏳'; break;
-                case 'Sedang Diproses': $badgeClass = 'badge-info'; $statusIcon = '🔥'; break;
-                case 'Menunggu Kurir': $badgeClass = 'badge-primary'; $statusIcon = '🚚'; break;
-                case 'Selesai': $badgeClass = 'badge-success'; $statusIcon = '✅'; break;
-                case 'Dibatalkan': $badgeClass = 'badge-danger'; $statusIcon = '❌'; break;
-                }
-                @endphp
-                <span class="badge {{ $badgeClass }}" style="font-size: 1rem; padding: 8px 16px;">
-                    {{ $statusIcon }} {{ $pemesanan->status_pesan }}
-                </span>
-            </div>
+    <div class="container" style="padding: 140px 20px 80px; background: #fafaf5; min-height: 100vh;">
+        <div style="margin-bottom: 24px;">
+            <a href="{{ route('admin.pemesanan.index') }}"
+                style="color: #1a5632; text-decoration: none; font-weight: 600; font-size: 1rem;">
+                ← Kembali ke Daftar Pesanan
+            </a>
         </div>
 
-        <!-- Informasi Pelanggan -->
-        <div class="card" style="margin-bottom: 24px;">
-            <div class="card-header">
-                <h3>👤 Informasi Pelanggan</h3>
+        @if(session('success'))
+            <div
+                style="background: #d1fae5; border-left: 4px solid #10b981; color: #065f46; padding: 16px 20px; border-radius: 8px; margin-bottom: 24px;">
+                {{ session('success') }}
             </div>
-            <div class="card-body">
-                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #eee;">
-                    <div style="width: 60px; height: 60px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold;">
-                        {{ strtoupper(substr($pemesanan->pelanggan->nama_pelanggan, 0, 1)) }}
-                    </div>
-                    <div>
-                        <h4 style="margin-bottom: 4px;">{{ $pemesanan->pelanggan->nama_pelanggan }}</h4>
-                        <p style="color: var(--gray); font-size: 0.9rem;">{{ $pemesanan->pelanggan->email }}</p>
-                    </div>
-                </div>
+        @endif
 
-                <div style="margin-bottom: 12px;">
-                    <strong style="color: var(--gray); font-size: 0.85rem; text-transform: uppercase;">📞 Telepon</strong>
-                    <p style="margin-top: 4px;">{{ $pemesanan->pelanggan->telepon ?? '-' }}</p>
-                </div>
+        @if($errors->any())
+            <div
+                style="background: #fee2e2; border-left: 4px solid #dc2626; color: #dc2626; padding: 16px 20px; border-radius: 8px; margin-bottom: 24px;">
+                <ul style="margin: 0; padding-left: 20px;">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
+        <!-- Informasi Pesanan -->
+        <div
+            style="background: #fff; padding: 32px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 24px;">
+            <h2
+                style="margin-top: 0; color: #1a5632; font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 24px;">
+                📦 Detail Pesanan #{{ $pemesanan->no_resi }}</h2>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
                 <div>
-                    <strong style="color: var(--gray); font-size: 0.85rem; text-transform: uppercase;">📍 Alamat Pengiriman</strong>
-                    <p style="margin-top: 4px; line-height: 1.6;">{{ $pemesanan->pelanggan->alamat1 ?? '-' }}<br>
-                        @if($pemesanan->pelanggan->alamat2)
-                        {{ $pemesanan->pelanggan->alamat2 }}<br>
-                        @endif
-                        @if($pemesanan->pelanggan->alamat3)
-                        {{ $pemesanan->pelanggan->alamat3 }}
-                        @endif
+                    <h3 style="color: #333; font-size: 1.1rem; margin-bottom: 12px; font-weight: 600;">Informasi Pelanggan
+                    </h3>
+                    <p style="margin: 6px 0; color: #555;"><strong>Nama:</strong>
+                        {{ $pemesanan->pelanggan->nama_pelanggan }}</p>
+                    <p style="margin: 6px 0; color: #555;"><strong>Email:</strong> {{ $pemesanan->pelanggan->email }}</p>
+                    <p style="margin: 6px 0; color: #555;"><strong>Telepon:</strong> {{ $pemesanan->pelanggan->telepon }}
+                    </p>
+                    <p style="margin: 6px 0; color: #555;"><strong>Alamat:</strong> {{ $pemesanan->alamat_pengiriman }}</p>
+                </div>
+                <div>
+                    <h3 style="color: #333; font-size: 1.1rem; margin-bottom: 12px; font-weight: 600;">Informasi Pesanan
+                    </h3>
+                    <p style="margin: 6px 0; color: #555;"><strong>Tanggal:</strong>
+                        {{ $pemesanan->tgl_pesan->format('d M Y, H:i') }}</p>
+                    <p style="margin: 6px 0; color: #555;"><strong>Total Bayar:</strong> <span
+                            style="color: #1a5632; font-weight: 700; font-size: 1.1rem;">Rp
+                            {{ number_format($pemesanan->total_bayar, 0, ',', '.') }}</span></p>
+                    <p style="margin: 6px 0; color: #555;"><strong>Ongkir:</strong> Rp
+                        {{ number_format($pemesanan->ongkir, 0, ',', '.') }}</p>
+                    <p style="margin: 6px 0; color: #555;"><strong>Status:</strong> <span
+                            style="background: #fef3c7; color: #92400e; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">{{ $pemesanan->status_pesan }}</span>
                     </p>
                 </div>
             </div>
-        </div>
 
-        <!-- Detail Item Pesanan -->
-        <div class="card" style="margin-bottom: 24px;">
-            <div class="card-header">
-                <h3>📦 Detail Pesanan</h3>
-            </div>
-            <div class="card-body" style="padding: 0;">
-                <table style="width: 100%; border-collapse: collapse;">
-                    <thead style="background: var(--light);">
-                        <tr>
-                            <th style="padding: 12px 16px; text-align: left; font-weight: 600; color: var(--gray); font-size: 0.85rem; border-bottom: 1px solid #eee;">Paket</th>
-                            <th style="padding: 12px 16px; text-align: right; font-weight: 600; color: var(--gray); font-size: 0.85rem; border-bottom: 1px solid #eee;">Subtotal</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($pemesanan->detailPemesanans as $detail)
-                        <tr style="border-bottom: 1px solid #eee;">
-                            <td style="padding: 16px;">
-                                <strong>{{ $detail->paket->nama_paket }}</strong>
-                                <br><small style="color: var(--gray);">{{ $detail->paket->jumlah_pax }} Pax | {{ $detail->paket->jenis }}</small>
-                            </td>
-                            <td style="padding: 16px; text-align: right; font-weight: 600;">Rp {{ number_format($detail->subtotal, 0, ',', '.') }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                    <tfoot style="background: #f9f9f9;">
-                        <tr>
-                            <td style="padding: 16px; font-weight: 700; font-size: 1.1rem;">Total Pembayaran</td>
-                            <td style="padding: 16px; text-align: right; font-weight: 700; font-size: 1.3rem; color: var(--primary);">Rp {{ number_format($pemesanan->total_bayar, 0, ',', '.') }}</td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-        </div>
-
-        <!-- Metode Pembayaran -->
-        @if($pemesanan->jenisPembayaran)
-        <div class="card" style="margin-bottom: 24px;">
-            <div class="card-header">
-                <h3>💳 Metode Pembayaran</h3>
-            </div>
-            <div class="card-body">
-                <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 12px; padding: 16px; margin-bottom: 12px;">
-                    <strong style="color: #0369a1; display: block; margin-bottom: 8px;">{{ $pemesanan->jenisPembayaran->metode_pembayaran }}</strong>
-                    @if($pemesanan->jenisPembayaran->detailJenisPembayarans->count())
-                    @foreach($pemesanan->jenisPembayaran->detailJenisPembayarans as $rek)
-                    <div style="margin-bottom: 8px; padding-bottom: 8px; {{ !$loop->last ? 'border-bottom: 1px dashed #bae6fd;' : '' }}">
-                        <div style="font-size: 0.9rem; color: #64748b;">{{ $rek->tempat_bayar }}</div>
-                        <div style="font-size: 1.1rem; font-weight: 700; color: #0369a1; letter-spacing: 1px;">{{ $rek->no_rek }}</div>
-                    </div>
-                    @endforeach
-                    @endif
-                </div>
-                <p style="font-size: 0.85rem; color: var(--gray);">
-                    <strong>Catatan:</strong> Pastikan pembayaran sudah dikonfirmasi sebelum memproses pesanan.
-                </p>
-            </div>
-        </div>
-        @endif
-    </div>
-
-    <!-- KOLOM KANAN: UPDATE STATUS & PENGIRIMAN -->
-    <div>
-        <!-- Update Status Pesanan -->
-        <div class="card" style="margin-bottom: 24px;">
-            <div class="card-header">
-                <h3>🔄 Update Status Pesanan</h3>
-            </div>
-            <div class="card-body">
-                <form action="{{ route('admin.pemesanan.update-status', $pemesanan->id) }}" method="POST">
-                    @csrf
-
-                    <div style="margin-bottom: 20px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--gray);">Status Saat Ini:</label>
-                        <div style="padding: 12px 16px; background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; font-weight: 600; color: #166534;">
-                            {{ $statusIcon }} {{ $pemesanan->status_pesan }}
+            <!-- Daftar Item -->
+            <h3 style="color: #333; font-size: 1.1rem; margin: 32px 0 16px; font-weight: 600;">📋 Item Pesanan</h3>
+            <div style="background: #f9f9f9; border-radius: 12px; padding: 20px;">
+                @foreach($pemesanan->detailPemesanans as $detail)
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: white; border-radius: 8px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                        <div>
+                            <p style="margin: 0; font-weight: 600; color: #333; font-size: 1.05rem;">
+                                {{ $detail->paket->nama_paket ?? 'Paket tidak tersedia' }}</p>
+                            <p style="margin: 4px 0 0; color: #888; font-size: 0.9rem;">{{ $detail->jumlah }} x Rp
+                                {{ number_format($detail->paket->harga_paket ?? 0, 0, ',', '.') }}</p>
                         </div>
+                        <p style="margin: 0; font-weight: 700; color: #1a5632; font-size: 1.1rem;">Rp
+                            {{ number_format($detail->subtotal, 0, ',', '.') }}</p>
                     </div>
+                @endforeach
+            </div>
+        </div>
 
-                    <div style="margin-bottom: 20px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 500;">Ubah Status:</label>
-                        <select name="status_pesan" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; font-family: inherit;">
-                            <option value="Menunggu Konfirmasi" {{ $pemesanan->status_pesan == 'Menunggu Konfirmasi' ? 'selected' : '' }}>⏳ Menunggu Konfirmasi</option>
-                            <option value="Sedang Diproses" {{ $pemesanan->status_pesan == 'Sedang Diproses' ? 'selected' : '' }}>🔥 Sedang Diproses</option>
-                            <option value="Menunggu Kurir" {{ $pemesanan->status_pesan == 'Menunggu Kurir' ? 'selected' : '' }}>🚚 Menunggu Kurir</option>
-                            <option value="Selesai" {{ $pemesanan->status_pesan == 'Selesai' ? 'selected' : '' }}>✅ Selesai</option>
-                            <option value="Dibatalkan" {{ $pemesanan->status_pesan == 'Dibatalkan' ? 'selected' : '' }}>❌ Dibatalkan</option>
+        <!-- FORM UPDATE STATUS & PENGIRIMAN -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+
+            <!-- FORM 1: UPDATE STATUS PESANAN -->
+            <div style="background: #fff; padding: 32px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+                <h3
+                    style="margin-top: 0; color: #1a5632; font-family: 'Playfair Display', serif; font-size: 1.3rem; margin-bottom: 20px;">
+                    📦 Status Pesanan</h3>
+                <div
+                    style="background: #f0fdf4; padding: 16px; border-radius: 12px; margin-bottom: 24px; font-weight: 700; color: #166534; text-align: center; font-size: 1.1rem; border: 2px solid #bbf7d0;">
+                    {{ $pemesanan->status_pesan }}
+                </div>
+
+                <form action="{{ route('admin.pemesanan.updateStatus', $pemesanan->id) }}" method="POST">
+                    @csrf
+                    <div style="margin-bottom: 24px;">
+                        <label
+                            style="display: block; margin-bottom: 10px; font-weight: 600; font-size: 0.95rem; color: #333;">Ubah
+                            Status:</label>
+                        <select name="status_pesan"
+                            style="width: 100%; padding: 14px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1rem; background: #fff; transition: all 0.3s;"
+                            onfocus="this.style.borderColor='#1a5632'" onblur="this.style.borderColor='#e0e0e0'">
+                            <option value="Menunggu Konfirmasi" @selected($pemesanan->status_pesan == 'Menunggu Konfirmasi')>⏳
+                                Menunggu Konfirmasi</option>
+                            <option value="Sedang Diproses" @selected($pemesanan->status_pesan == 'Sedang Diproses')>🔥 Sedang
+                                Diproses</option>
+                            <option value="Menunggu Kurir" @selected($pemesanan->status_pesan == 'Menunggu Kurir')>🚚 Menunggu
+                                Kurir</option>
+                            <option value="Selesai" @selected($pemesanan->status_pesan == 'Selesai')>✅ Selesai</option>
+                            <option value="Dibatalkan" @selected($pemesanan->status_pesan == 'Dibatalkan')>❌ Dibatalkan
+                            </option>
                         </select>
                     </div>
-
-                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <button type="submit"
+                        style="width: 100%; padding: 16px; background: linear-gradient(135deg, #1a5632, #0e3a20); color: white; border: none; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(26,86,50,0.3);"
+                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(26,86,50,0.4)'"
+                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(26,86,50,0.3)'">
                         Update Status Pesanan
                     </button>
                 </form>
             </div>
-        </div>
 
-        <!-- Informasi Pengiriman -->
-        <div class="card">
-            <div class="card-header">
-                <h3>🚚 Informasi Pengiriman</h3>
-            </div>
-            <div class="card-body">
-                <form action="{{ route('admin.pemesanan.update-pengiriman', $pemesanan->id) }}" method="POST" enctype="multipart/form-data">
+            <!-- FORM 2: UPDATE INFORMASI PENGIRIMAN -->
+            <div style="background: #fff; padding: 32px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+                <h3
+                    style="margin-top: 0; color: #1a5632; font-family: 'Playfair Display', serif; font-size: 1.3rem; margin-bottom: 24px;">
+                    🚛 Informasi Pengiriman</h3>
+
+                <form action="{{ route('admin.pemesanan.updateShipping', $pemesanan->id) }}" method="POST"
+                    enctype="multipart/form-data">
                     @csrf
 
-                    <div style="margin-bottom: 16px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 500;">Status Kirim:</label>
-                        <select name="status_kirim" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; font-family: inherit;">
-                            <option value="Sedang Dikirim" {{ ($pemesanan->pengiriman->status_kirim ?? '') == 'Sedang Dikirim' ? 'selected' : '' }}>🚚 Sedang Dikirim</option>
-                            <option value="Tiba Ditujuan" {{ ($pemesanan->pengiriman->status_kirim ?? '') == 'Tiba Ditujuan' ? 'selected' : '' }}>✅ Tiba Ditujuan</option>
+                    <div style="margin-bottom: 20px;">
+                        <label
+                            style="display: block; margin-bottom: 10px; font-weight: 600; font-size: 0.95rem; color: #333;">Status
+                            Kirim:</label>
+                        <select name="status_kirim"
+                            style="width: 100%; padding: 14px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1rem; background: #fff; transition: all 0.3s;"
+                            onfocus="this.style.borderColor='#1a5632'" onblur="this.style.borderColor='#e0e0e0'">
+                            <option value="Menunggu Pengiriman" @selected(($pemesanan->status_kirim ?? 'Menunggu Pengiriman') == 'Menunggu Pengiriman')>📦 Menunggu Pengiriman</option>
+                            <option value="Sedang Dikirim" @selected(($pemesanan->status_kirim ?? 'Sedang Dikirim') == 'Sedang Dikirim')>🚛 Sedang Dikirim</option>
+                            <option value="Tiba Ditujuan" @selected(($pemesanan->status_kirim ?? 'Tiba Ditujuan') == 'Tiba Ditujuan')>✅ Tiba Ditujuan</option>
                         </select>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
                         <div>
-                            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Tanggal Kirim:</label>
+                            <label
+                                style="display: block; margin-bottom: 10px; font-weight: 600; font-size: 0.95rem; color: #333;">Tanggal
+                                & Jam Kirim</label>
                             <input type="datetime-local" name="tgl_kirim"
-                                value="{{ $pemesanan->pengiriman && $pemesanan->pengiriman->tgl_kirim ? \Carbon\Carbon::parse($pemesanan->pengiriman->tgl_kirim)->format('Y-m-d\TH:i') : '' }}"
-                                style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem;">
+                                value="{{ old('tgl_kirim', $pemesanan->tgl_kirim ? $pemesanan->tgl_kirim->format('Y-m-d\TH:i') : '') }}"
+                                style="width: 100%; padding: 14px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 0.95rem; background: #fafafa;"
+                                onfocus="this.style.borderColor='#1a5632'; this.style.background='#fff'"
+                                onblur="this.style.borderColor='#e0e0e0'; this.style.background='#fafafa'">
                         </div>
                         <div>
-                            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Tanggal Tiba:</label>
-                            <input type="datetime-local" name="tgl_tiba"
-                                value="{{ $pemesanan->pengiriman && $pemesanan->pengiriman->tgl_tiba ? \Carbon\Carbon::parse($pemesanan->pengiriman->tgl_tiba)->format('Y-m-d\TH:i') : '' }}"
-                                style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem;">
+                            <label
+                                style="display: block; margin-bottom: 10px; font-weight: 600; font-size: 0.95rem; color: #333;">Tanggal
+                                & Jam Sampai</label>
+                            <input type="datetime-local" name="tgl_sampai"
+                                value="{{ old('tgl_sampai', $pemesanan->tgl_sampai ? $pemesanan->tgl_sampai->format('Y-m-d\TH:i') : '') }}"
+                                style="width: 100%; padding: 14px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 0.95rem; background: #fafafa;"
+                                onfocus="this.style.borderColor='#1a5632'; this.style.background='#fff'"
+                                onblur="this.style.borderColor='#e0e0e0'; this.style.background='#fafafa'">
                         </div>
                     </div>
 
-                    <div style="margin-bottom: 20px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 500;">Bukti Foto Pengiriman:</label>
+                    <div style="margin-bottom: 28px;">
+                        <label
+                            style="display: block; margin-bottom: 10px; font-weight: 600; font-size: 0.95rem; color: #333;">Bukti
+                            Foto Pengiriman:</label>
                         <input type="file" name="bukti_foto" accept="image/*"
-                            style="width: 100%; padding: 10px; border: 2px dashed #e0e0e0; border-radius: 8px; cursor: pointer;">
-                        <small style="color: var(--gray); font-size: 0.85rem;">Upload foto saat pesanan sampai ke pelanggan</small>
+                            style="width: 100%; padding: 14px; border: 2px dashed #ccc; border-radius: 10px; background: #fafafa; cursor: pointer;"
+                            onmouseover="this.style.borderColor='#1a5632'" onmouseout="this.style.borderColor='#ccc'">
+                        <small style="color: #6b6b6b; font-size: 0.85rem; display: block; margin-top: 8px;">📷 Upload foto
+                            saat pesanan sampai ke pelanggan (max 2MB)</small>
 
-                        @if($pemesanan->pengiriman && $pemesanan->pengiriman->bukti_foto)
-                        <div style="margin-top: 12px;">
-                            <p style="font-size: 0.85rem; color: var(--gray); margin-bottom: 8px;">📸 Foto saat ini:</p>
-                            <img src="{{ asset('storage/' . $pemesanan->pengiriman->bukti_foto) }}" alt="Bukti Pengiriman"
-                                style="max-width: 100%; border-radius: 8px; border: 2px solid var(--light); box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                        </div>
+                        @if($pemesanan->bukti_foto)
+                            <div style="margin-top: 16px; padding: 12px; background: #f9f9f9; border-radius: 10px;">
+                                <p style="font-size: 0.9rem; margin-bottom: 10px; font-weight: 600; color: #333;">📸 Foto saat
+                                    ini:</p>
+                                <img src="{{ asset('storage/' . $pemesanan->bukti_foto) }}" alt="Bukti Pengiriman"
+                                    style="width: 100%; max-width: 200px; height: auto; object-fit: cover; border-radius: 8px; border: 3px solid #e5e7eb;">
+                            </div>
                         @endif
                     </div>
 
-                    <button type="submit" class="btn btn-success" style="width: 100%;">
+                    <button type="submit"
+                        style="width: 100%; padding: 16px; background: linear-gradient(135deg, #16a34a, #15803d); color: white; border: none; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(22,163,74,0.3);"
+                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(22,163,74,0.4)'"
+                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(22,163,74,0.3)'">
                         Update Informasi Pengiriman
                     </button>
                 </form>
             </div>
         </div>
-
-        <!-- Timeline Status (Visual) -->
-        <div class="card" style="margin-top: 24px;">
-            <div class="card-header">
-                <h3>📊 Timeline Pesanan</h3>
-            </div>
-            <div class="card-body">
-                <div style="position: relative; padding: 20px 0;">
-                    @php
-                    $steps = [
-                    ['Menunggu Konfirmasi', '⏳', 'Pesanan diterima sistem'],
-                    ['Sedang Diproses', '🔥', 'Pesanan sedang disiapkan'],
-                    ['Menunggu Kurir', '🚚', 'Menunggu pengiriman'],
-                    ['Selesai', '✅', 'Pesanan sampai'],
-                    ];
-
-                    $currentStep = 0;
-                    switch($pemesanan->status_pesan) {
-                    case 'Sedang Diproses': $currentStep = 1; break;
-                    case 'Menunggu Kurir': $currentStep = 2; break;
-                    case 'Selesai': $currentStep = 3; break;
-                    case 'Dibatalkan': $currentStep = -1; break;
-                    }
-                    @endphp
-
-                    @foreach($steps as $index => $step)
-                    <div style="display: flex; margin-bottom: {{ $index < count($steps) - 1 ? '24px' : '0' }};">
-                        <div style="display: flex; flex-direction: column; align-items: center; margin-right: 16px;">
-                            <div style="width: 40px; height: 40px; background: {{ $index <= $currentStep ? 'var(--primary)' : '#e0e0e0' }}; color: {{ $index <= $currentStep ? 'white' : '#999' }}; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
-                                {{ $step[1] }}
-                            </div>
-                            @if($index < count($steps) - 1)
-                                <div style="width: 2px; height: 100%; background: {{ $index < $currentStep ? 'var(--primary)' : '#e0e0e0' }}; margin-top: 8px;">
-                        </div>
-                        @endif
-                    </div>
-                    <div style="flex: 1; padding-top: 8px;">
-                        <div style="font-weight: 600; color: {{ $index <= $currentStep ? 'var(--dark)' : '#999' }};">{{ $step[0] }}</div>
-                        <div style="font-size: 0.85rem; color: var(--gray);">{{ $step[2] }}</div>
-                    </div>
-                </div>
-                @endforeach
-            </div>
-        </div>
     </div>
-</div>
-</div>
-
-<!-- Action Buttons -->
-<div style="margin-top: 24px; display: flex; gap: 12px;">
-    <button onclick="window.print()" class="btn" style="background: var(--gray); color: white;">
-        🖨️ Cetak Pesanan
-    </button>
-    <a href="{{ route('admin.pemesanan.index') }}" class="btn" style="background: #6c757d; color: white;">
-        ← Kembali
-    </a>
-</div>
-
-<style>
-    @media print {
-
-        .sidebar,
-        .topbar,
-        .btn,
-        form {
-            display: none !important;
-        }
-
-        .main-content {
-            margin-left: 0 !important;
-        }
-
-        .card {
-            break-inside: avoid;
-        }
-    }
-</style>
 @endsection

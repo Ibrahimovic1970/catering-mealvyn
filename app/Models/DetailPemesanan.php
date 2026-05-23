@@ -12,16 +12,19 @@ class DetailPemesanan extends Model
     protected $table = 'detail_pemesanans';
 
     protected $fillable = [
-        'id_pemesanan',
+        'id_pesan',
         'id_paket',
-        'subtotal'
+        'jumlah',
+        'subtotal',
     ];
 
+    // PERBAIKAN PENTING: Beritahu Laravel foreign key-nya 'id_pesan'
     public function pemesanan()
     {
-        return $this->belongsTo(Pemesanan::class, 'id_pemesanan');
+        return $this->belongsTo(Pemesanan::class, 'id_pesan');
     }
 
+    // Relasi ke Paket
     public function paket()
     {
         return $this->belongsTo(Paket::class, 'id_paket');

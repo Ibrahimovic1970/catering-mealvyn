@@ -12,12 +12,23 @@ class Pemesanan extends Model
     protected $table = 'pemesanans';
 
     protected $fillable = [
-        'id_pelanggan',
-        'id_jenis_bayar',
         'no_resi',
+        'id_pelanggan',
         'tgl_pesan',
+        'total_bayar',
         'status_pesan',
-        'total_bayar'
+        'alamat_pengiriman',
+        'ongkir',
+        'status_kirim',
+        'tgl_kirim',
+        'tgl_sampai',
+        'bukti_foto',
+    ];
+
+    protected $casts = [
+        'tgl_pesan' => 'datetime',
+        'tgl_kirim' => 'datetime',
+        'tgl_sampai' => 'datetime',
     ];
 
     public function pelanggan()
@@ -25,18 +36,13 @@ class Pemesanan extends Model
         return $this->belongsTo(Pelanggan::class, 'id_pelanggan');
     }
 
-    public function jenisPembayaran()
-    {
-        return $this->belongsTo(JenisPembayaran::class, 'id_jenis_bayar');
-    }
-
     public function detailPemesanans()
     {
-        return $this->hasMany(DetailPemesanan::class, 'id_pemesanan');
+        return $this->hasMany(DetailPemesanan::class, 'id_pesan');
     }
 
-    public function pengiriman()
+    public function jenisPembayaran()
     {
-        return $this->hasOne(Pengiriman::class, 'id_pesan');
+        return $this->belongsTo(JenisPembayaran::class, 'id_jenis_pembayaran');
     }
 }

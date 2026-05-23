@@ -5,144 +5,146 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Pemesanan;
 use App\Models\Pelanggan;
-use App\Models\Pengiriman;
+use App\Models\DetailPemesanan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class PemesananController extends Controller
 {
     /**
-     * Untuk Admin & CEO - Lihat semua pesanan
+     * ==========================================
+     * CUSTOMER METHODS (Untuk Pelanggan)
+     * ==========================================
+     */
+
+    /**
+     * Tampilkan daftar pesanan untuk customer yang sedang login (Menu "Pesanan Saya")
+     */
+    public function pesananSaya()
+    {
+        // Ambil user yang sedang login
+        $user = Auth::user();
+
+        // Cari data pelanggan berdasarkan email user
+        $pelanggan = Pelanggan::where('email', $user->email)->first();
+
+        // Jika pelanggan ditemukan, ambil pesanannya
+        if ($pelanggan) {
+            $pemesanans = Pemesanan::where('id_pelanggan', $pelanggan->id)
+                ->with(['pelanggan', 'detailPemesanans.paket']) // Load relasi
+                ->latest() // Urutkan dari yang terbaru
+                ->paginate(10); // Tampilkan 10 per halaman
+        } else {
+            // Jika belum jadi pelanggan, tampilkan kosong
+            $pemesanans = collect([]);
+        }
+
+        return view('pages.pesanan-saya', compact('pemesanans'));
+    }
+
+    /**
+     * Tampilkan detail pesanan untuk customer
+     */
+    public function detailPesanan($id)
+    {
+        $user = Auth::user();
+        $pelanggan = Pelanggan::where('email', $user->email)->first();
+
+        // Cari pesanan berdasarkan ID dan pastikan milik pelanggan yang login
+        $pemesanan = Pemesanan::where('id', $id)
+            ->where('id_pelanggan', $pelanggan->id)
+            ->with(['pelanggan', 'detailPemesanans.paket'])
+            ->firstOrFail();
+
+        return view('pages.detail-pesanan', compact('pemesanan'));
+    }
+
+
+    /**
+     * ==========================================
+     * ADMIN METHODS (Untuk Admin & CEO)
+     * ==========================================
+     */
+
+    /**
+     * Tampilkan daftar semua pesanan (Halaman Index Admin)
      */
     public function index()
     {
-        $pemesanans = Pemesanan::with(['pelanggan', 'detailPemesanans.paket', 'jenisPembayaran'])
-            ->orderBy('created_at', 'desc')
+        $pemesanans = Pemesanan::with(['pelanggan', 'detailPemesanans.paket'])
+            ->latest()
             ->paginate(15);
 
         return view('admin.pemesanan.index', compact('pemesanans'));
     }
 
     /**
-     * Untuk Pelanggan - Lihat pesanan sendiri (DIPERBAIKI)
+     * Tampilkan detail pesanan (Halaman Show Admin)
      */
-    public function pesananSaya()
+    public function show($id)
     {
-        $user = auth()->user();
-
-        // 1. Cari data pelanggan berdasarkan EMAIL user yang sedang login
-        $pelanggan = Pelanggan::where('email', $user->email)->first();
-
-        if ($pelanggan) {
-            // 2. Jika ketemu, ambil pesanan berdasarkan ID pelanggan tersebut
-            $pemesanans = Pemesanan::where('id_pelanggan', $pelanggan->id)
-                ->with(['detailPemesanans.paket', 'jenisPembayaran'])
-                ->orderBy('created_at', 'desc')
-                ->paginate(10);
-        } else {
-            // 3. Jika tidak ada data pelanggan (belum pernah checkout), kembalikan kosong
-            $pemesanans = collect([]);
-        }
-
-        return view('pelanggan.pesanan.index', compact('pemesanans'));
-    }
-
-    /**
-     * Untuk Pelanggan - Detail pesanan sendiri (DIPERBAIKI)
-     */
-    public function detailPesanan(Pemesanan $pemesanan)
-    {
-        $user = auth()->user();
-
-        // Cari pelanggan berdasarkan email user login
-        $pelanggan = Pelanggan::where('email', $user->email)->first();
-
-        // Pastikan pesanan yang dibuka MILIK pelanggan yang sedang login
-        // Jika $pelanggan tidak ada ATAU ID pesanan tidak cocok, tolak akses
-        if (!$pelanggan || $pemesanan->id_pelanggan !== $pelanggan->id) {
-            abort(403, 'Anda tidak memiliki akses ke pesanan ini.');
-        }
-
-        $pemesanan->load(['detailPemesanans.paket', 'jenisPembayaran.detailJenisPembayarans', 'pengiriman']);
-
-        return view('pelanggan.pesanan.show', compact('pemesanan'));
-    }
-
-    /**
-     * Untuk Admin - Detail pesanan
-     */
-    public function show(Pemesanan $pemesanan)
-    {
-        $pemesanan->load(['pelanggan', 'detailPemesanans.paket', 'jenisPembayaran.detailJenisPembayarans', 'pengiriman']);
+        // Ambil semua data pesanan beserta relasinya
+        $pemesanan = Pemesanan::with(['pelanggan', 'detailPemesanans.paket', 'jenisPembayaran'])
+            ->findOrFail($id);
 
         return view('admin.pemesanan.show', compact('pemesanan'));
     }
 
     /**
-     * Update status pesanan (Admin/CEO only)
+     * Update Status Pesanan (Misal: Menunggu Konfirmasi -> Sedang Diproses)
      */
-    public function updateStatus(Request $request, Pemesanan $pemesanan)
+    public function updateStatus(Request $request, $id)
     {
-        $validated = $request->validate([
-            'status_pesan' => 'required|in:Menunggu Konfirmasi,Sedang Diproses,Menunggu Kurir,Selesai,Dibatalkan',
+        // Validasi input status
+        $request->validate([
+            'status_pesan' => 'required|in:Menunggu Konfirmasi,Sedang Diproses,Menunggu Kurir,Selesai,Dibatalkan'
         ]);
 
-        $pemesanan->update([
-            'status_pesan' => $validated['status_pesan']
-        ]);
+        $pemesanan = Pemesanan::findOrFail($id);
 
-        return redirect()->back()->with('success', 'Status pesanan berhasil diupdate.');
+        // Update status
+        $pemesanan->status_pesan = $request->status_pesan;
+        $pemesanan->save();
+
+        return redirect()->back()->with('success', '✅ Status pesanan berhasil diperbarui!');
     }
 
     /**
-     * Update info pengiriman (Admin/CEO only)
+     * Update Informasi Pengiriman (Status Kirim, Tanggal, Foto Bukti)
      */
-    public function updatePengiriman(Request $request, Pemesanan $pemesanan)
+    public function updateShipping(Request $request, $id)
     {
-        $validated = $request->validate([
-            'status_kirim' => 'required|in:Sedang Dikirim,Tiba Ditujuan',
+        // Validasi input pengiriman
+        $request->validate([
+            'status_kirim' => 'required|in:Menunggu Pengiriman,Sedang Dikirim,Tiba Ditujuan',
             'tgl_kirim' => 'nullable|date',
-            'tgl_tiba' => 'nullable|date|after_or_equal:tgl_kirim',
-            'bukti_foto' => 'nullable|image|max:2048',
+            'tgl_sampai' => 'nullable|date|after_or_equal:tgl_kirim',
+            'bukti_foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048' // Max 2MB
         ]);
 
-        $buktiFoto = null;
+        $pemesanan = Pemesanan::findOrFail($id);
+
+        // Update data teks
+        $pemesanan->status_kirim = $request->status_kirim;
+        $pemesanan->tgl_kirim = $request->tgl_kirim;
+        $pemesanan->tgl_sampai = $request->tgl_sampai;
+
+        // Handle Upload Foto Bukti Pengiriman
         if ($request->hasFile('bukti_foto')) {
-            $buktiFoto = $request->file('bukti_foto')->store('bukti_pengiriman', 'public');
+            // Hapus foto lama jika ada
+            if ($pemesanan->bukti_foto) {
+                Storage::disk('public')->delete($pemesanan->bukti_foto);
+            }
+
+            // Simpan foto baru ke folder storage/app/public/bukti_pengiriman
+            $path = $request->file('bukti_foto')->store('bukti_pengiriman', 'public');
+            $pemesanan->bukti_foto = $path;
         }
 
-        $pengiriman = Pengiriman::updateOrCreate(
-            ['id_pesan' => $pemesanan->id],
-            [
-                'status_kirim' => $validated['status_kirim'],
-                'tgl_kirim' => $validated['tgl_kirim'] ?? null,
-                'tgl_tiba' => $validated['tgl_tiba'] ?? null,
-                'bukti_foto' => $buktiFoto,
-                'id_user' => auth()->id(),
-            ]
-        );
+        // Simpan perubahan ke database
+        $pemesanan->save();
 
-        return redirect()->back()->with('success', 'Info pengiriman berhasil diupdate.');
-    }
-
-    /**
-     * API untuk mengecek status pesanan (Real-time)
-     */
-    public function checkStatus(Pemesanan $pemesanan)
-    {
-        $user = auth()->user();
-        $pelanggan = Pelanggan::where('email', $user->email)->first();
-
-        if (!$pelanggan || $pemesanan->id_pelanggan !== $pelanggan->id) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
-
-        $pemesanan->load(['pengiriman']);
-
-        return response()->json([
-            'status_pesan' => $pemesanan->status_pesan,
-            'status_kirim' => $pemesanan->pengiriman->status_kirim ?? null,
-            'tgl_tiba' => $pemesanan->pengiriman->tgl_tiba ? $pemesanan->pengiriman->tgl_tiba->format('d M Y, H:i') : null,
-            'bukti_foto' => $pemesanan->pengiriman->bukti_foto ?? null,
-        ]);
+        return redirect()->back()->with('success', '✅ Informasi pengiriman berhasil diperbarui!');
     }
 }
